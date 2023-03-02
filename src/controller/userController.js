@@ -30,7 +30,39 @@ let createNewUser = async (req, res) => {
     )
 }
 
+let updateUser = async (req, res) => {
+    let { SDT, HO, TEN, CMND } = req.body
+    if (!SDT || !HO || !TEN || !CMND) {
+        return res.status(200).json({
+            message: 'e001'
+        })
+    }
+    console.log(SDT)
+    await pool.execute('update user set HO=?, TEN=?, CMND=? where SDT=?',
+        [HO, TEN, CMND, SDT])
+    return res.status(200).json({
+        message: 'e000'
+    })
+}
+
+let deleteUser = async (req, res) => {
+    let { SDT } = req.body
+    if (!SDT) {
+        return res.status(200).json({
+            message: 'e001'
+        })
+    }
+    console.log(SDT)
+    await pool.execute('delete from user where SDT=?'
+        , [SDT])
+    return res.status(200).json({
+        message: 'e000'
+    })
+}
+
 module.exports = {
     getAlluser,
-    createNewUser
+    createNewUser,
+    updateUser,
+    deleteUser
 }

@@ -6,4 +6,6 @@ let router = express.Router()
 
 router.get('/get-all', userController.getAlluser)
 router.post('/add', userController.createNewUser)
+router.put('/update', userController.updateUser)
+router.delete('/delete', userController.deleteUser)
 module.exports = router
