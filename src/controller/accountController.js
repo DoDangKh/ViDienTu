@@ -2,6 +2,7 @@ const pool = require("../configs/connectDB");
 const jwt = require("jsonwebtoken");
 // const key = require('../configs/JWTconfigs')
 const dotenv = require("dotenv");
+const bcrypt = require('bcrypt')
 dotenv.config();
 let getAllAccount = async (req, res) => {
   const [rows, fields] = await pool.execute("Select * from account");

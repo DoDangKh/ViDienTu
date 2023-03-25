@@ -6,6 +6,7 @@ pool = require('../configs/connectDB')
 let getAlluser = async (req, res) => {
 
     const [rows, fields] = await pool.execute('SELECT * from user')
+    console.log(rows[0].SDT)
     return res.status(200).json({
         message: 'e000',
         data: rows
