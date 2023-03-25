@@ -1,7 +1,7 @@
 const express = require("express");
 const initAPIRoute = require("./src/routes/api");
 const app = express();
-const port = 5000;
+const port = 7000;
 const route = require("./src/routes/api");
 const bp = require("body-parser");
 //cors
