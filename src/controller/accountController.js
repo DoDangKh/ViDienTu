@@ -21,7 +21,8 @@ let Signup = async (req, res) => {
     !account.Mail ||
     !account.Password ||
     !account.HoTen ||
-    !account.GioiTinh
+    !account.GioiTinh ||
+    !account.CCCD
   ) {
     return res.status(200).json({
       success: false,
@@ -41,14 +42,16 @@ let Signup = async (req, res) => {
       message: "Số điện thoại (tài khoản) đã tồn tại!",
     });
   }
-  await pool.execute("insert into user(SDT,HoTen,GioiTinh) values(?,?,?)", [
+  await pool.execute("insert into user(SDT,HoTen,GioiTinh,SoDu,CCCD) values(?,?,?,?,?)", [
     account.SDT,
     account.HoTen,
     parseInt(account.GioiTinh),
+    0,
+    account.CCCD
   ]);
   await pool.execute(
-    "insert into account(SDT,Mail,Password,Status,SoDu) values(?,?,?,?,?)",
-    [account.SDT, account.Mail, account.Password, 1, 0]
+    "insert into account(SDT,Mail,Password,Status) values(?,?,?,?)",
+    [account.SDT, account.Mail, account.Password, 1]
   );
 
   return res.status(200).json({
