@@ -2,6 +2,7 @@ const pool = require("../configs/connectDB");
 const jwt = require("jsonwebtoken");
 // const key = require('../configs/JWTconfigs')
 const dotenv = require("dotenv");
+const bcrypt = require("bcrypt");
 dotenv.config();
 let getAllAccount = async (req, res) => {
   const [rows, fields] = await pool.execute("Select * from account");
@@ -80,6 +81,8 @@ let login = async (req, res) => {
     "select * from account, user where  account.SDT = ? and user.SDT = ? and password = ?",
     [account.SDT, account.SDT, account.Password]
   );
+
+  delete user[0].Password;
 
   return res.status(200).json({
     success: true,
