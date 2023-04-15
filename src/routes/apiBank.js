@@ -1,10 +1,14 @@
-const express = require('express')
-const bankController = require('../controller/bankController')
+const express = require("express");
+const bankController = require("../controller/bankController");
 
-let Router = express.Router()
-Router.get('/getbyuser', bankController.getbankbyUser)
-Router.post('/link', bankController.linkbank)
-Router.post('/getmoney', bankController.getmoney)
-Router.post('/sendmoney', bankController.sendmoney)
+let Router = express.Router();
+Router.get("/getAllBanks", bankController.getAllBanks);
+Router.post("/getCardBankByUser", bankController.getCardBankByUser);
+Router.post("/link", bankController.linkbank);
+//nạp tiền
+Router.post("/getmoney", bankController.getmoney);
 
-module.exports = Router
+//rút tiền
+Router.post("/sendmoney", bankController.sendmoney);
+
+module.exports = Router;

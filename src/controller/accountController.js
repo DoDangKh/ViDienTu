@@ -13,9 +13,7 @@ let getAllAccount = async (req, res) => {
 };
 
 let Signup = async (req, res) => {
-  console.log("dang ky");
   let account = req.body;
-  console.log(account);
   if (
     !account.SDT ||
     !account.Mail ||
@@ -42,13 +40,10 @@ let Signup = async (req, res) => {
       message: "Số điện thoại (tài khoản) đã tồn tại!",
     });
   }
-  await pool.execute("insert into user(SDT,HoTen,GioiTinh,SoDu,CCCD) values(?,?,?,?,?)", [
-    account.SDT,
-    account.HoTen,
-    parseInt(account.GioiTinh),
-    0,
-    account.CCCD
-  ]);
+  await pool.execute(
+    "insert into user(SDT,HoTen,GioiTinh,SoDu,CCCD) values(?,?,?,?,?)",
+    [account.SDT, account.HoTen, parseInt(account.GioiTinh), 0, account.CCCD]
+  );
   await pool.execute(
     "insert into account(SDT,Mail,Password,Status) values(?,?,?,?)",
     [account.SDT, account.Mail, account.Password, 1]
@@ -62,7 +57,6 @@ let Signup = async (req, res) => {
 };
 let login = async (req, res) => {
   let account = req.body;
-  console.log(account);
   const [rows, fields] = await pool.execute(
     "select * from account where  SDT = ? and password = ?",
     [account.SDT, account.Password]
@@ -77,7 +71,7 @@ let login = async (req, res) => {
   }
   console.log(process.env.ACCESS_TOKEN_SECRET);
   const token = jwt.sign(account, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "30m",
+    expiresIn: "1d",
   });
 
   const [user] = await pool.execute(
