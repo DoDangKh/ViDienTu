@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 // const key = require('../configs/JWTconfigs')
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer")
+// const math = require('Math')
 dotenv.config();
 let getAllAccount = async (req, res) => {
   const [rows, fields] = await pool.execute("Select * from account");
@@ -11,7 +13,48 @@ let getAllAccount = async (req, res) => {
     data: rows,
   });
 };
+let forgetPassword = async (req, res) => {
+  const token = req.body.token
+  if (!token) {
+    return res.status(200).json({
+      code: "e005",
+      message: "token is unqualified"
+    })
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    [rows, fields] = await pool.execute("SELECT * FROM account WHERE sdt=?", [decoded.SDT])
+    password = Math.floor(Math.random() * 800000) + 100000
+    await pool.execute("UPDATE account SET password=? WHERE sdt=?", [password, decoded.SDT])
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      port: process.env.MAIL_PORT,
+      secure: false,
+      auth: {
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: true
+      }
+    })
+    console.log(rows[0])
+    const options = {
+      from: 'ViDienTu',
+      to: rows[0].Mail,
+      subject: 'New Password',
+      text: password.toString()
+    }
+    transporter.sendMail(options)
+    return res.status(200).json({
+      message: 'success'
+    })
+  }
+  catch (err) {
 
+  }
+
+}
 let Signup = async (req, res) => {
   let account = req.body;
   if (
@@ -94,4 +137,5 @@ module.exports = {
   getAllAccount,
   Signup,
   login,
+  forgetPassword,
 };
