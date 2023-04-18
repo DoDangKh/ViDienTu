@@ -85,6 +85,7 @@ let deleteUser = async (req, res) => {
   });
 };
 
+
 module.exports = {
   getAlluser,
   createNewUser,
