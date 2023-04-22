@@ -14,45 +14,42 @@ let getAllAccount = async (req, res) => {
   });
 };
 let forgetPassword = async (req, res) => {
-  const token = req.body.token
-  if (!token) {
-    return res.status(200).json({
-      code: "e005",
-      message: "token is unqualified"
+  let mail = req.body.mail
+  const [rows, fields] = await pool.execute("SELECT * FROM account where mail=?", [mail])
+  if (rows.length == 0) {
+    return res.status(404).json({
+      code: "e001",
+      message: "Email not true"
     })
   }
-  try {
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    [rows, fields] = await pool.execute("SELECT * FROM account WHERE sdt=?", [decoded.SDT])
-    password = Math.floor(Math.random() * 800000) + 100000
-    await pool.execute("UPDATE account SET password=? WHERE sdt=?", [password, decoded.SDT])
-    const transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      port: process.env.MAIL_PORT,
-      secure: false,
-      auth: {
-        user: process.env.MAIL_USERNAME,
-        pass: process.env.MAIL_PASSWORD,
-      },
-      tls: {
-        rejectUnauthorized: true
-      }
-    })
-    console.log(rows[0])
-    const options = {
-      from: 'ViDienTu',
-      to: rows[0].Mail,
-      subject: 'New Password',
-      text: password.toString()
+  // const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  // [rows, fields] = await pool.execute("SELECT * FROM account WHERE sdt=?", [decoded.SDT])
+  password = Math.floor(Math.random() * 800000) + 100000
+  await pool.execute("UPDATE account SET password=? WHERE sdt=?", [password, rows[0].SDT])
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    port: process.env.MAIL_PORT,
+    secure: false,
+    auth: {
+      user: process.env.MAIL_USERNAME,
+      pass: process.env.MAIL_PASSWORD,
+    },
+    tls: {
+      rejectUnauthorized: true
     }
-    transporter.sendMail(options)
-    return res.status(200).json({
-      message: 'success'
-    })
+  })
+  console.log(rows[0])
+  const options = {
+    from: 'ViDienTu',
+    to: rows[0].Mail,
+    subject: 'New Password',
+    text: password.toString()
   }
-  catch (err) {
+  transporter.sendMail(options)
+  return res.status(200).json({
+    message: 'success'
+  })
 
-  }
 
 }
 let Signup = async (req, res) => {
