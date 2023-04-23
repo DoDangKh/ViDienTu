@@ -1,5 +1,6 @@
 pool = require("../configs/connectDB");
 const jwt = require("jsonwebtoken");
+const pool = require("../configs/connectDB");
 let getUserByToken = async (req, res) => {
   console.log("get user by token");
   const token = req.body.token;
@@ -55,21 +56,19 @@ let createNewUser = async (req, res) => {
 };
 
 let updateUser = async (req, res) => {
-  let { SDT, HO, TEN, CMND } = req.body;
-  if (!SDT || !HO || !TEN || !CMND) {
+  const token = req.body.token
+  if (!token) {
     return res.status(200).json({
-      message: "e001",
+      code: "e005",
+      message: "token unqualified",
     });
   }
-  await pool.execute("update user set HO=?, TEN=?, CMND=? where SDT=?", [
-    HO,
-    TEN,
-    CMND,
-    SDT,
-  ]);
+  const account = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  await pool.execute("UPDATE user SET HoTen=?,GioiTinh=?,CCCD=? WHERE SDT=? ", [req.body.HoTen, req.body.GioiTinh, req.body.CCCD, account.SDT])
   return res.status(200).json({
-    message: "e000",
-  });
+    code: "e000",
+    message: "success"
+  })
 };
 
 let deleteUser = async (req, res) => {
