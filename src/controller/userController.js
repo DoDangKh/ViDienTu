@@ -1,4 +1,4 @@
-pool = require("../configs/connectDB");
+// pool = require("../configs/connectDB");
 const jwt = require("jsonwebtoken");
 const pool = require("../configs/connectDB");
 let getUserByToken = async (req, res) => {
