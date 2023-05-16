@@ -1,5 +1,6 @@
-pool = require("../configs/connectDB");
+// pool = require("../configs/connectDB");
 const jwt = require("jsonwebtoken");
+const pool = require("../configs/connectDB");
 let getUserByToken = async (req, res) => {
   console.log("get user by token");
   const token = req.body.token;
@@ -55,37 +56,20 @@ let createNewUser = async (req, res) => {
 };
 
 let updateUser = async (req, res) => {
-  let { SDT, HoTen, CCCD, GioiTinh } = req.body;
-  if (!SDT || !HoTen || !CCCD || !GioiTinh) {
+  let { SDT, HO, TEN, CMND } = req.body;
+  if (!SDT || !HO || !TEN || !CMND) {
     return res.status(200).json({
-      code: "e001",
+      message: "e001",
     });
   }
-  await pool.execute(
-    "update user set HoTen=?, CCCD=?, GioiTinh=? where SDT=?",
-    [HoTen, CCCD, parseInt(GioiTinh), SDT]
-  );
-
-  const [rows, fields] = await pool.execute(
-    "select * from account where  SDT = ?",
-    [SDT]
-  );
-  const token = jwt.sign(rows[0], process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "1d",
-  });
-  const [user] = await pool.execute(
-    "select * from account, user where  account.SDT = ? and user.SDT = ? and password = ?",
-    [SDT, SDT, rows[0].Password]
-  );
-
-  delete user[0].Password;
-
+  await pool.execute("update user set HO=?, TEN=?, CMND=? where SDT=?", [
+    HO,
+    TEN,
+    CMND,
+    SDT,
+  ]);
   return res.status(200).json({
-    success: true,
-    code: "e000",
-    message: "Đăng nhập thành công!",
-    token,
-    user: user[0],
+    message: "e000",
   });
 };
 

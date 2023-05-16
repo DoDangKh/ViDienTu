@@ -20,4 +20,6 @@ router.post("/transfer", transactionController.transfer);
 //get tất cả lịch sử giao dịch
 router.post("/get-all", transactionController.getallTransaction);
 
+router.post("/get-all-filter", transactionController.getallTransactionFiltered)
+
 module.exports = router;
