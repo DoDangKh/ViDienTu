@@ -197,10 +197,20 @@ let transfer = async (req, res) => {
       decoded.SDT,
     ]);
     await pool.execute("update user set SoDu=? where SDT=?", [wallet2, sdt]);
+
+    [rowTrans, fieldsTrans] = await pool.execute("select * from giaodich");
+
+    const [rowsUser, fieldsUser] = await pool.execute(
+      "Select * from user where SDT=?",
+      [sdt]
+    );
     return res.status(200).json({
       success: true,
       code: "e000",
       message: "Giao dịch thành công!",
+      MaGiaoDich: rowTrans[rowTrans.length - 1].MAGD,
+      soDu: wallet1,
+      user: rowsUser[0],
     });
   } catch (err) {
     console.log(err);
@@ -353,6 +363,47 @@ sortTransactionByTime = (list) => {
   }
   return finallist;
 };
+
+//get list user đã từng chuyển tiền cho SDT này
+let getAllUserTransfered = async (req, res) => {
+  const token = req.body.token;
+  if (!token) {
+    return res.status(200).json({
+      code: "e005",
+      message: "token unqualified",
+    });
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    const [rows, fields] = await pool.execute(
+      "Select * from giaodich where SDT1=? || SDT2=?",
+      [decoded.SDT, decoded.SDT]
+    );
+    const listUser = [];
+    for (let index = 0; index < rows.length; index++) {
+      const element = rows[index];
+      const [rows1, fields1] = await pool.execute(
+        "Select * from user where SDT=? and idrole = 2",
+        [element.SDT2]
+      );
+      if (rows1 && rows1.length > 0)
+        if (listUser.filter((val) => val.SDT == rows1[0].SDT).length <= 0)
+          listUser.push(rows1[0]);
+    }
+    return res.status(200).json({
+      success: true,
+      code: "e000",
+      data: listUser,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(200).json({
+      success: false,
+      code: "e006",
+    });
+  }
+};
 module.exports = {
   getRefill,
   getWithdrawal,
@@ -361,4 +412,5 @@ module.exports = {
   transfer,
   getallTransaction,
   getallTransactionFiltered,
+  getAllUserTransfered,
 };

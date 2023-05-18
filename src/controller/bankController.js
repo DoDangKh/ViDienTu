@@ -140,6 +140,7 @@ let getmoney = async (req, res) => {
   }
   amount =
     Number(rows[0].SODU) -
+    Number(req.body.MONEY) -
     Number(req.body.MONEY) * (Number(rows3[0].CHIETKHAU) / 100);
   await pool.execute("update user set SODU=? where SDT=?", [
     Number(rows2[0].SoDu) + Number(req.body.MONEY),
@@ -156,9 +157,13 @@ let getmoney = async (req, res) => {
     "insert into giaodichnh(SDT,MATK,SOTIEN,LOAI,NGAYGD) values(?,?,?,?,?)",
     [rows[0].SDT, req.body.MATK, req.body.MONEY, 0, s]
   );
+
+  [rowTrans, fieldsTrans] = await pool.execute("select * from giaodichnh");
+
   return res.status(200).json({
     code: "e000",
     message: "success",
+    MaGiaoDich: rowTrans[rowTrans.length - 1].MAGDNH,
   });
 };
 let sendmoney = async (req, res) => {
@@ -207,9 +212,13 @@ let sendmoney = async (req, res) => {
     "insert into giaodichnh(SDT,MATK,SOTIEN,LOAI,NGAYGD) values(?,?,?,?,?)",
     [rows[0].SDT, req.body.MATK, req.body.MONEY, 1, s]
   );
+
+  [rowTrans, fieldsTrans] = await pool.execute("select * from giaodichnh");
   return res.status(200).json({
     code: "e000",
     message: "success",
+    time: s,
+    MaGiaoDich: rowTrans[rowTrans.length - 1].MAGDNH,
   });
 };
 module.exports = {

@@ -20,6 +20,12 @@ router.post("/transfer", transactionController.transfer);
 //get tất cả lịch sử giao dịch
 router.post("/get-all", transactionController.getallTransaction);
 
-router.post("/get-all-filter", transactionController.getallTransactionFiltered)
+router.post("/get-all-filter", transactionController.getallTransactionFiltered);
+
+//get list user đã từng chuyển tiền cho SDT này
+router.post(
+  "/get-all-user-transfered",
+  transactionController.getAllUserTransfered
+);
 
 module.exports = router;
