@@ -5,6 +5,7 @@ let router = express.Router();
 
 router.get("/getAllTypeServices", servicesController.getAllTypeServices);
 router.post("/getAllServices", servicesController.getAllServices);
+router.post("/getAllServicesMn", servicesController.getAllServicesMn);
 router.post("/createTypeService", servicesController.createTypeService);
 router.post("/createService", servicesController.createService);
 router.post("/updateService", servicesController.updateService);

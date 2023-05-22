@@ -11,10 +11,25 @@ let getAllTypeServices = async (req, res) => {
   });
 };
 let getAllServices = async (req, res) => {
-  const { SDT } = req.body;
+  let { SDT, token } = req.body;
+  if (token) {
+    const account = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    SDT = account.SDT;
+  }
+
   const [rows, fields] = await pool.execute(
     "SELECT * FROM dichvu, loaidichvu where  dichvu.SDT = ? and dichvu.trangThai = 0 and dichvu.idLoaiDV = loaidichvu.idLoaiDV",
     [SDT]
+  );
+  return res.status(200).json({
+    code: "e000",
+    message: "success",
+    data: rows,
+  });
+};
+let getAllServicesMn = async (req, res) => {
+  const [rows, fields] = await pool.execute(
+    "SELECT * FROM dichvu, loaidichvu where dichvu.idLoaiDV = loaidichvu.idLoaiDV"
   );
   return res.status(200).json({
     code: "e000",
@@ -130,7 +145,12 @@ let deleteService = async (req, res) => {
 
 let payService = async (req, res) => {
   // idDV, idLoaiDV, thanhTien, SDT, ngayNhap, hanDong, trangThai, ghiChu
-  let { idDV, SDT } = req.body;
+  let { idDV, SDT, token } = req.body;
+
+  if (token) {
+    const account = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    SDT = account.SDT;
+  }
 
   try {
     m = moment();
@@ -202,6 +222,7 @@ let payService = async (req, res) => {
 module.exports = {
   getAllTypeServices,
   getAllServices,
+  getAllServicesMn,
   createTypeService,
   createService,
   updateService,
