@@ -221,10 +221,19 @@ let sendmoney = async (req, res) => {
     MaGiaoDich: rowTrans[rowTrans.length - 1].MAGDNH,
   });
 };
+let getBankFees = async (req, res) => {
+  [rows, _] = await pool.execute("select TENNH, CHIETKHAU from nganhang");
+  console.log("get fee");
+  return res.status(200).json({
+    data: rows,
+  });
+};
+
 module.exports = {
   getAllBanks,
   getCardBankByUser,
   linkbank,
   getmoney,
   sendmoney,
+  getBankFees,
 };

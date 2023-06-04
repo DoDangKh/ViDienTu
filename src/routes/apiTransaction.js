@@ -27,5 +27,9 @@ router.post(
   "/get-all-user-transfered",
   transactionController.getAllUserTransfered
 );
+router.post(
+  "/get-latest-trans_info",
+  transactionController.getLatestTransInfoByUser
+);
 
 module.exports = router;

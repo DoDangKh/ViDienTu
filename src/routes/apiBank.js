@@ -10,5 +10,6 @@ Router.post("/getmoney", bankController.getmoney);
 
 //rút tiền
 Router.post("/sendmoney", bankController.sendmoney);
+Router.get("/get-bank-fees", bankController.getBankFees);
 
 module.exports = Router;

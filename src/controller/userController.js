@@ -35,6 +35,25 @@ let getAlluser = async (req, res) => {
   });
 };
 
+let searchUser = async (req, res) => {
+  let { kwSDT, kwHoTen } = req.body;
+  let query = "";
+  if (kwSDT && kwHoTen) {
+    query = `SELECT * from user, account where user.SDT = account.SDT and user.HoTen like '%${kwHoTen}%' and user.SDT like '%${kwSDT}%'`;
+  } else if (kwHoTen) {
+    query = `SELECT * from user, account where user.SDT = account.SDT and user.HoTen like '%${kwHoTen}%'`;
+  } else if (kwSDT) {
+    query = `SELECT * from user, account where user.SDT = account.SDT and user.SDT like '%${kwSDT}%'`;
+  } else {
+    query = `SELECT * from user, account where user.SDT = account.SDT`;
+  }
+  const [rows, fields] = await pool.execute(query);
+  return res.status(200).json({
+    message: "e000",
+    data: rows,
+  });
+};
+
 let createNewUser = async (req, res) => {
   let { SDT, HO, TEN, CMND } = req.body;
   if (!SDT || !HO || !TEN || !CMND) {
@@ -85,6 +104,47 @@ let deleteUser = async (req, res) => {
     message: "e000",
   });
 };
+let updateUserAndroid = async (req, res) => {
+  let token = req.body.token;
+  let { GioiTinh, Email } = req.body;
+  if (!GioiTinh || !Email) {
+    return res.status(200).json({
+      code: "e001",
+    });
+  }
+
+  try {
+    const account = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    let SDT = account.SDT;
+    await pool.execute("update user set GioiTinh=? where SDT=?", [
+      GioiTinh,
+      SDT,
+    ]);
+    await pool.execute("update account set Mail=? where SDT=?", [Email, SDT]);
+  } catch (err) {
+    return res.status(200).json({
+      code: "e005",
+      error: err.message,
+    });
+  }
+
+  return res.status(200).json({
+    code: "e000",
+  });
+};
+let getUserNameByPhoneNum = async (req, res) => {
+  let SDT = req.query.SDT;
+  if (!SDT) {
+    return res.status(200).json({
+      message: "e001",
+    });
+  }
+  [rows, _] = await pool.execute("select HoTen from user where SDT=?", [SDT]);
+  return res.status(200).json({
+    message: "e000",
+    userName: rows[0] ? rows[0].HoTen : "",
+  });
+};
 
 module.exports = {
   getAlluser,
@@ -92,4 +152,7 @@ module.exports = {
   updateUser,
   deleteUser,
   getUserByToken,
+  searchUser,
+  updateUserAndroid,
+  getUserNameByPhoneNum,
 };

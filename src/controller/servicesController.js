@@ -12,21 +12,46 @@ let getAllTypeServices = async (req, res) => {
 };
 let getAllServices = async (req, res) => {
   let { SDT, token } = req.body;
-  if (token) {
-    const account = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    SDT = account.SDT;
-  }
+  try {
+    if (token) {
+      const account = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      SDT = account.SDT;
+    }
 
-  const [rows, fields] = await pool.execute(
-    "SELECT * FROM dichvu, loaidichvu where  dichvu.SDT = ? and dichvu.trangThai = 0 and dichvu.idLoaiDV = loaidichvu.idLoaiDV",
-    [SDT]
-  );
-  return res.status(200).json({
-    code: "e000",
-    message: "success",
-    data: rows,
-  });
+    const [rows, fields] = await pool.execute(
+      "SELECT * FROM dichvu, loaidichvu where  dichvu.SDT = ? and dichvu.trangThai = 0 and dichvu.idLoaiDV = loaidichvu.idLoaiDV",
+      [SDT]
+    );
+    return res.status(200).json({
+      code: "e000",
+      message: "success",
+      data: rows.reverse(),
+    });
+  } catch (error) {}
 };
+let getAllServicesByUser = async (req, res) => {
+  console.log("Cdcsvdvjh");
+  let { SDT, token } = req.body;
+  try {
+    if (token) {
+      const account = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      SDT = account.SDT;
+    }
+
+    const [rows, fields] = await pool.execute(
+      "SELECT * FROM dichvu, loaidichvu where  dichvu.SDT = ? and dichvu.idLoaiDV = loaidichvu.idLoaiDV",
+      [SDT]
+    );
+    return res.status(200).json({
+      code: "e000",
+      message: "success",
+      data: rows.reverse(),
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 let getAllServicesMn = async (req, res) => {
   const [rows, fields] = await pool.execute(
     "SELECT * FROM dichvu, loaidichvu where dichvu.idLoaiDV = loaidichvu.idLoaiDV"
@@ -109,7 +134,7 @@ let updateService = async (req, res) => {
 
   try {
     await pool.execute(
-      "update dichvu set idLoaiDV = ?, thanhTien = ?, SDT = ?, ngayNhap = ?, hanDong = ?, trangThai = ?, ghiChu = ?, ngayDong = null) where idDV  = ?",
+      "update dichvu set idLoaiDV = ?, thanhTien = ?, SDT = ?, ngayNhap = ?, hanDong = ?, trangThai = ?, ghiChu = ?, ngayDong = null where idDV  = ?",
       [idLoaiDV, thanhTien, SDT, ngayNhap, hanDong, trangThai, ghiChu, idDV]
     );
     return res.status(200).json({
@@ -218,6 +243,23 @@ let payService = async (req, res) => {
     });
   }
 };
+let getAllServicesOver = async (req, res) => {
+  let { SDT, token } = req.body;
+  if (token) {
+    const account = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    SDT = account.SDT;
+  }
+
+  const [rows, fields] = await pool.execute(
+    "SELECT * FROM dichvu, loaidichvu where dichvu.SDT = ? and dichvu.idLoaiDV = loaidichvu.idLoaiDV",
+    [SDT]
+  );
+  return res.status(200).json({
+    code: "e000",
+    message: "success",
+    data: rows,
+  });
+};
 
 module.exports = {
   getAllTypeServices,
@@ -228,4 +270,6 @@ module.exports = {
   updateService,
   deleteService,
   payService,
+  getAllServicesByUser,
+  getAllServicesOver,
 };

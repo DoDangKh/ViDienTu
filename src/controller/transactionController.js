@@ -404,6 +404,65 @@ let getAllUserTransfered = async (req, res) => {
     });
   }
 };
+let getLatestTransInfoByUser = async (req, res) => {
+  const token = req.body.token;
+  if (!token) {
+    return res.status(200).json({
+      code: "e005",
+      message: "token unqualified",
+    });
+  }
+  try {
+    const account = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    [transRows, _] = await pool.execute(
+      "SELECT CONVERT_TZ(NGAYGD, '+00:00', '+07:00') AS NGAYGD, MAGD, STGD FROM GIAODICH WHERE NGAYGD = (SELECT MAX(NGAYGD) FROM GIAODICH) AND SDT1 = ?;",
+      [account.SDT]
+    );
+    [bankTransRow, _] = await pool.execute(
+      "SELECT CONVERT_TZ(NGAYGD, '+00:00', '+07:00') AS NGAYGDNH, MAGDNH, SOTIEN FROM GIAODICHNH WHERE NGAYGD = (SELECT MAX(NGAYGD) FROM GIAODICHNH) AND SDT = ?",
+      [account.SDT]
+    );
+
+    if (!(transRows.length && bankTransRow.length)) {
+      if (transRows.length) {
+        return res.status(200).json({
+          time: transRows[0].NGAYGD,
+          transId: transRows[0].MAGD,
+          amount: transRows[0].STGD,
+        });
+      } else {
+        return res.status(200).json({
+          time: bankTransRow[0].NGAYGDNH,
+          transId: bankTransRow[0].MAGDNH,
+          amount: bankTransRow[0].SOTIEN,
+        });
+      }
+    }
+
+    const transDate = new Date(transRows[0].NGAYGD);
+    const bankDate = new Date(bankTransRow[0].NGAYGDNH);
+    if (transDate > bankDate) {
+      return res.status(200).json({
+        time: transRows[0].NGAYGD,
+        transId: transRows[0].MAGD,
+        amount: transRows[0].STGD,
+      });
+    } else {
+      return res.status(200).json({
+        time: bankTransRow[0].NGAYGDNH,
+        transId: bankTransRow[0].MAGDNH,
+        amount: bankTransRow[0].SOTIEN,
+      });
+    }
+  } catch (err) {
+    return res.status(200).json({
+      success: false,
+      code: "e006",
+      err: err.message,
+    });
+  }
+};
+
 module.exports = {
   getRefill,
   getWithdrawal,
@@ -413,4 +472,5 @@ module.exports = {
   getallTransaction,
   getallTransactionFiltered,
   getAllUserTransfered,
+  getLatestTransInfoByUser,
 };
